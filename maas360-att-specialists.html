@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaaS360 AT&amp;T Specialists</title>
+    <style>
+/* IBM Carbon Design System Theme */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --ibm-blue-60: #0f62fe;
+    --ibm-blue-70: #0043ce;
+    --ibm-blue-80: #002d9c;
+    --ibm-gray-10: #f4f4f4;
+    --ibm-gray-20: #e0e0e0;
+    --ibm-gray-30: #c6c6c6;
+    --ibm-gray-50: #8d8d8d;
+    --ibm-gray-70: #525252;
+    --ibm-gray-90: #262626;
+    --ibm-white: #ffffff;
+    --ibm-text-primary: #161616;
+    --ibm-text-secondary: #525252;
+    --ibm-ui-background: #ffffff;
+    --ibm-field: #f4f4f4;
+    /* AT&T brand color */
+    --att-blue: #00a8e0;
+    --att-blue-dark: #0076a8;
+}
+
+body {
+    font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+    background: var(--ibm-gray-10);
+    min-height: 100vh;
+    padding: 20px;
+    color: var(--ibm-text-primary);
+}
+
+.container {
+    max-width: 1600px;
+    margin: 0 auto;
+    background: var(--ibm-ui-background);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+header {
+    background: var(--ibm-gray-90);
+    color: var(--ibm-white);
+    padding: 32px 40px;
+    border-bottom: 4px solid var(--att-blue);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-att-badge {
+    background: var(--att-blue);
+    color: var(--ibm-white);
+    font-size: 1.1em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 8px 16px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+.header-text h1 {
+    font-size: 2.2em;
+    font-weight: 400;
+    margin-bottom: 6px;
+}
+
+.header-text .subtitle {
+    font-size: 0.95em;
+    opacity: 0.8;
+    font-weight: 300;
+}
+
+.content-wrapper {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 32px;
+    padding: 40px;
+}
+
+.map-section {
+    background: var(--ibm-white);
+    border: 1px solid var(--ibm-gray-20);
+    padding: 20px;
+    border-radius: 4px;
+}
+
+.map-title {
+    font-size: 0.85em;
+    color: var(--ibm-text-secondary);
+    letter-spacing: 0.32px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+#us-map { width: 100%; height: auto; display: block; }
+
+/* State fill colors — one per specialist + unassigned */
+.state {
+    fill: var(--ibm-gray-30);
+    stroke: var(--ibm-white);
+    stroke-width: 1.5;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.state.att-colby   { fill: #00a8e0; }
+.state.att-hemali  { fill: #ff7200; }
+.state.att-open    { fill: #6929c4; }
+.state:hover       { opacity: 0.75; stroke-width: 2; }
+.state.selected    { stroke: var(--ibm-gray-90); stroke-width: 2.5; opacity: 1; filter: brightness(0.85); }
+
+.state-label {
+    font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    fill: #333;
+    text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Info panel */
+.info-panel {
+    background: var(--ibm-field);
+    border: 1px solid var(--ibm-gray-20);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-header {
+    background: var(--ibm-gray-90);
+    color: var(--ibm-white);
+    padding: 20px;
+}
+
+.info-header h2 { font-size: 1.3em; font-weight: 400; }
+
+.state-details {
+    padding: 24px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--ibm-text-secondary);
+    padding: 60px 20px;
+    gap: 12px;
+}
+
+.placeholder svg { opacity: 0.4; }
+.placeholder p { font-size: 14px; }
+
+.state-name {
+    font-size: 1.6em;
+    font-weight: 400;
+    color: var(--ibm-text-primary);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--ibm-gray-20);
+}
+
+.rep-section { margin-bottom: 20px; }
+
+.rep-section h3 {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: var(--ibm-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.32px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rep-section h3::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 16px;
+    background: var(--att-blue);
+}
+
+.rep-section h3.mgr-section::before { background: var(--ibm-blue-60); }
+.rep-section h3.sales-section::before { background: var(--ibm-gray-50); }
+
+.rep-info {
+    background: var(--ibm-white);
+    padding: 14px 16px;
+    border-radius: 4px;
+    border-left: 3px solid var(--att-blue);
+}
+
+.rep-info.mgr-info { border-left-color: var(--ibm-blue-60); }
+.rep-info.sales-info { border-left-color: var(--ibm-gray-50); }
+
+.rep-detail { margin-bottom: 10px; font-size: 14px; }
+.rep-detail:last-child { margin-bottom: 0; }
+
+.rep-detail strong {
+    display: block;
+    color: var(--ibm-text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.32px;
+    margin-bottom: 3px;
+}
+
+.rep-detail span { color: var(--ibm-text-primary); }
+
+.rep-detail a {
+    color: var(--ibm-blue-60);
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.rep-detail a:hover { text-decoration: underline; }
+
+.no-data {
+    background: var(--ibm-field);
+    padding: 20px;
+    border-radius: 4px;
+    text-align: center;
+    color: var(--ibm-text-secondary);
+    border: 1px dashed var(--ibm-gray-30);
+    font-size: 14px;
+}
+
+/* Legend */
+.legend {
+    padding: 24px 40px;
+    background: var(--ibm-field);
+    border-top: 1px solid var(--ibm-gray-20);
+}
+
+.legend h3 {
+    font-size: 0.85em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.32px;
+    color: var(--ibm-text-secondary);
+    margin-bottom: 14px;
+}
+
+.legend-items { display: flex; gap: 28px; flex-wrap: wrap; }
+
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+
+.legend-color {
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.1);
+    flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .content-wrapper { grid-template-columns: 1fr; }
+    .info-panel { min-height: 400px; }
+}
+
+@media (max-width: 768px) {
+    header { flex-direction: column; align-items: flex-start; gap: 12px; padding: 24px 20px; }
+    .header-text h1 { font-size: 1.6em; }
+    .content-wrapper { padding: 20px; gap: 20px; }
+    .legend { padding: 20px; }
+    .legend-items { flex-direction: column; gap: 10px; }
+}
+
+.state-details::-webkit-scrollbar { width: 6px; }
+.state-details::-webkit-scrollbar-track { background: var(--ibm-gray-10); }
+.state-details::-webkit-scrollbar-thumb { background: var(--ibm-gray-50); border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-att-badge">AT&amp;T</div>
+            <div class="header-text">
+                <h1>MaaS360 AT&amp;T Specialists</h1>
+                <p class="subtitle">Click any state to view the assigned AT&amp;T specialist</p>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="map-section">
+                <p class="map-title">United States — AT&amp;T Specialist Coverage</p>
+                <svg id="us-map" viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                    <!-- US States rendered by D3.js -->
+                </svg>
+            </div>
+
+            <div class="info-panel">
+                <div class="info-header">
+                    <h2>State Details</h2>
+                </div>
+                <div id="state-info" class="state-details">
+                    <div class="placeholder">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="10" r="3"/>
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                        </svg>
+                        <p>Select a state to see the AT&amp;T specialist<br>and team contacts</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <h3>AT&amp;T Specialist by Territory</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <span class="legend-color" style="background:#00a8e0;"></span>
+                    <span>Colby Smith (East)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background:#ff7200;"></span>
+                    <span>Hemali Patel (West / Central)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background:#6929c4;"></span>
+                    <span>Open / TBD</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background:#c6c6c6;"></span>
+                    <span>No Data</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/topojson@3"></script>
+    <script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+const attSpecialistData = {
+    'ME': { name:'Maine',          attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'James Chavez',            repEmail:'James.Chavez@ibm.com',          techRep:'Josh Knowles',    techRepEmail:'jknowles@us.ibm.com',      manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'NH': { name:'New Hampshire',  attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'James Chavez',            repEmail:'James.Chavez@ibm.com',          techRep:'Josh Knowles',    techRepEmail:'jknowles@us.ibm.com',      manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'VT': { name:'Vermont',        attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'James Chavez',            repEmail:'James.Chavez@ibm.com',          techRep:'Josh Knowles',    techRepEmail:'jknowles@us.ibm.com',      manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'MA': { name:'Massachusetts',  attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'James Chavez',            repEmail:'James.Chavez@ibm.com',          techRep:'Josh Knowles',    techRepEmail:'jknowles@us.ibm.com',      manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'RI': { name:'Rhode Island',   attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'James Chavez',            repEmail:'James.Chavez@ibm.com',          techRep:'Josh Knowles',    techRepEmail:'jknowles@us.ibm.com',      manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'CT': { name:'Connecticut',    attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'Asyah Jiron',             repEmail:'a.jiron@ibm.com',               techRep:'Marianne Johnston',techRepEmail:'mjohnston@ibm.com',         manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'NJ': { name:'New Jersey',     attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'Asyah Jiron',             repEmail:'a.jiron@ibm.com',               techRep:'Marianne Johnston',techRepEmail:'mjohnston@ibm.com',         manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'NY': { name:'New York',       attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'Steven St. Arnauld',      repEmail:'steven.st.Arnauld@ibm.com',     techRep:'Marianne Johnston',techRepEmail:'mjohnston@ibm.com',         manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'PA': { name:'Pennsylvania',   attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'Robert Woessner',         repEmail:'Robert.Woessner@ibm.com',       techRep:'Nate Alvin',       techRepEmail:'nathan.alvis@ibm.com',     manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'OH': { name:'Ohio',           attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'Robert Woessner',         repEmail:'Robert.Woessner@ibm.com',       techRep:'Jason Sawyer',     techRepEmail:'Jason.sawyer@ibm.com',     manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'WV': { name:'West Virginia',  attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'Andrew Williams',         repEmail:'Andrew.Williams.Jr@ibm.com',    techRep:'Nate Alvin',       techRepEmail:'nathan.alvis@ibm.com',     manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'VA': { name:'Virginia',       attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'Andrew Williams',         repEmail:'Andrew.Williams.Jr@ibm.com',    techRep:'Nate Alvin',       techRepEmail:'nathan.alvis@ibm.com',     manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'MD': { name:'Maryland',       attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'Andrew Williams',         repEmail:'Andrew.Williams.Jr@ibm.com',    techRep:'Nate Alvin',       techRepEmail:'nathan.alvis@ibm.com',     manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'DE': { name:'Delaware',       attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'Andrew Williams',         repEmail:'Andrew.Williams.Jr@ibm.com',    techRep:'Nate Alvin',       techRepEmail:'nathan.alvis@ibm.com',     manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'KY': { name:'Kentucky',       attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'Nick Riley',              repEmail:'Nicholas.Riley@ibm.com',        techRep:'Nathan Luu',       techRepEmail:'nathan.luu@ibm.com',       manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'TN': { name:'Tennessee',      attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'Nick Riley',              repEmail:'Nicholas.Riley@ibm.com',        techRep:'Nathan Luu',       techRepEmail:'nathan.luu@ibm.com',       manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'NC': { name:'North Carolina', attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'Nick Riley',              repEmail:'Nicholas.Riley@ibm.com',        techRep:'Nathan Luu',       techRepEmail:'nathan.luu@ibm.com',       manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'MS': { name:'Mississippi',    attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'Sierra Reynolds',         repEmail:'Sierra.Reynolds@ibm.com',       techRep:'Nathan Luu',       techRepEmail:'nathan.luu@ibm.com',       manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'AL': { name:'Alabama',        attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'Sierra Reynolds',         repEmail:'Sierra.Reynolds@ibm.com',       techRep:'Nathan Luu',       techRepEmail:'nathan.luu@ibm.com',       manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'GA': { name:'Georgia',        attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'Sierra Reynolds',         repEmail:'Sierra.Reynolds@ibm.com',       techRep:'Nathan Luu',       techRepEmail:'nathan.luu@ibm.com',       manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'SC': { name:'South Carolina', attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:'Sierra Reynolds',         repEmail:'Sierra.Reynolds@ibm.com',       techRep:'Nathan Luu',       techRepEmail:'nathan.luu@ibm.com',       manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'FL': { name:'Florida',        attSpecialist:'Colby Smith',  attEmail:'Colby.Smith@ibm.com',  attPhone:'',             seniorManager:'Michael Dailey', seniorManagerEmail:'Michael.Dailey1@ibm.com', seniorManagerPhone:'+1-2159834876',             rep:"Mary Kate O'Neill",       repEmail:'marykate.oneill@ibm.com',       techRep:'Valery Orellana',  techRepEmail:'valery.Orellana@ibm.com',  manager:'Mike Dailey',   managerEmail:'Michael.Dailey1@ibm.com',   techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'MI': { name:'Michigan',       attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:"Bill D'Arcy",             repEmail:'Bill.DArcy@ibm.com',            techRep:'Annika Harper',    techRepEmail:'Annika.harper@ibm.com',    manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'IN': { name:'Indiana',        attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:"Bill D'Arcy",             repEmail:'Bill.DArcy@ibm.com',            techRep:'Annika Harper',    techRepEmail:'Annika.harper@ibm.com',    manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'IL': { name:'Illinois',       attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:"Bill D'Arcy",             repEmail:'Bill.DArcy@ibm.com',            techRep:'Annika Harper',    techRepEmail:'Annika.harper@ibm.com',    manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'WI': { name:'Wisconsin',      attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:"Bill D'Arcy",             repEmail:'Bill.DArcy@ibm.com',            techRep:'Annika Harper',    techRepEmail:'Annika.harper@ibm.com',    manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'MN': { name:'Minnesota',      attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Erin Flynn',              repEmail:'Erin.Flynn@ibm.com',            techRep:'Alina Kim',        techRepEmail:'alina.kim@ibm.com',        manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'IA': { name:'Iowa',           attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Erin Flynn',              repEmail:'Erin.Flynn@ibm.com',            techRep:'Alina Kim',        techRepEmail:'alina.kim@ibm.com',        manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'MO': { name:'Missouri',       attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Erin Flynn',              repEmail:'Erin.Flynn@ibm.com',            techRep:'Alina Kim',        techRepEmail:'alina.kim@ibm.com',        manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'ND': { name:'North Dakota',   attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Erin Flynn',              repEmail:'Erin.Flynn@ibm.com',            techRep:'Alina Kim',        techRepEmail:'alina.kim@ibm.com',        manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'SD': { name:'South Dakota',   attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Erin Flynn',              repEmail:'Erin.Flynn@ibm.com',            techRep:'Alina Kim',        techRepEmail:'alina.kim@ibm.com',        manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'NE': { name:'Nebraska',       attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Erin Flynn',              repEmail:'Erin.Flynn@ibm.com',            techRep:'Alina Kim',        techRepEmail:'alina.kim@ibm.com',        manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'KS': { name:'Kansas',         attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Erin Flynn',              repEmail:'Erin.Flynn@ibm.com',            techRep:'Alina Kim',        techRepEmail:'alina.kim@ibm.com',        manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'AR': { name:'Arkansas',       attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Erin Flynn',              repEmail:'Erin.Flynn@ibm.com',            techRep:'Alina Kim',        techRepEmail:'alina.kim@ibm.com',        manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'LA': { name:'Louisiana',      attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Erin Flynn',              repEmail:'Erin.Flynn@ibm.com',            techRep:'Alina Kim',        techRepEmail:'alina.kim@ibm.com',        manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'OK': { name:'Oklahoma',       attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Erin Flynn',              repEmail:'Erin.Flynn@ibm.com',            techRep:'Alina Kim',        techRepEmail:'alina.kim@ibm.com',        manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'TX': { name:'Texas',          attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Jad Rusnol',              repEmail:'Jad.Rusnol@ibm.com',            techRep:'Duane Wright',     techRepEmail:'wduane@us.ibm.com',        manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'CO': { name:'Colorado',       attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Allie Pitts',             repEmail:'Allie.Pitts@ibm.com',           techRep:'Brian Collier',    techRepEmail:'brian.collier@ibm.com',    manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'WY': { name:'Wyoming',        attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Allie Pitts',             repEmail:'Allie.Pitts@ibm.com',           techRep:'Brian Collier',    techRepEmail:'brian.collier@ibm.com',    manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'MT': { name:'Montana',        attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Allie Pitts',             repEmail:'Allie.Pitts@ibm.com',           techRep:'Brian Collier',    techRepEmail:'brian.collier@ibm.com',    manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'ID': { name:'Idaho',          attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Allie Pitts',             repEmail:'Allie.Pitts@ibm.com',           techRep:'Brian Collier',    techRepEmail:'brian.collier@ibm.com',    manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'UT': { name:'Utah',           attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Allie Pitts',             repEmail:'Allie.Pitts@ibm.com',           techRep:'Brian Collier',    techRepEmail:'brian.collier@ibm.com',    manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'NV': { name:'Nevada',         attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Joe Clark',               repEmail:'Joseph.Clark1@ibm.com',         techRep:'Lina Corredor',    techRepEmail:'lmcorred@us.ibm.com',      manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'AZ': { name:'Arizona',        attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Joe Clark',               repEmail:'Joseph.Clark1@ibm.com',         techRep:'Lina Corredor',    techRepEmail:'lmcorred@us.ibm.com',      manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'NM': { name:'New Mexico',     attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Joe Clark',               repEmail:'Joseph.Clark1@ibm.com',         techRep:'Lina Corredor',    techRepEmail:'lmcorred@us.ibm.com',      manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'CA': { name:'California',     attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Zach Tarver',             repEmail:'Zach.Tarver@ibm.com',           techRep:'Ruby Ramsay',      techRepEmail:'rubyramsay@ibm.com',       manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'OR': { name:'Oregon',         attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Allie Pitts',             repEmail:'Allie.Pitts@ibm.com',           techRep:'Brian Collier',    techRepEmail:'brian.collier@ibm.com',    manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'WA': { name:'Washington',     attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Allie Pitts',             repEmail:'Allie.Pitts@ibm.com',           techRep:'Brian Collier',    techRepEmail:'brian.collier@ibm.com',    manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'AK': { name:'Alaska',         attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Joe Clark',               repEmail:'Joseph.Clark1@ibm.com',         techRep:'Brian Collier',    techRepEmail:'brian.collier@ibm.com',    manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' },
+    'HI': { name:'Hawaii',         attSpecialist:'Hemali Patel', attEmail:'H.Patel@ibm.com',      attPhone:'828-507-6563', seniorManager:'Kellin Johnson', seniorManagerEmail:'kellinj@us.ibm.com', seniorManagerPhone:'+1-9728410826', rep:'Joe Clark',               repEmail:'Joseph.Clark1@ibm.com',         techRep:'Brian Collier',    techRepEmail:'brian.collier@ibm.com',    manager:'Kellin Johnson',managerEmail:'kellinj@us.ibm.com',       techManager:'Colin Shenk', techManagerEmail:'Colin.Shenk@ibm.com' }
+};
+
+// ── State FIPS → abbreviation ─────────────────────────────────────────────────
+const stateIdToAbbr = {
+    '01':'AL','02':'AK','04':'AZ','05':'AR','06':'CA','08':'CO','09':'CT','10':'DE',
+    '12':'FL','13':'GA','15':'HI','16':'ID','17':'IL','18':'IN','19':'IA',
+    '20':'KS','21':'KY','22':'LA','23':'ME','24':'MD','25':'MA','26':'MI','27':'MN',
+    '28':'MS','29':'MO','30':'MT','31':'NE','32':'NV','33':'NH','34':'NJ','35':'NM',
+    '36':'NY','37':'NC','38':'ND','39':'OH','40':'OK','41':'OR','42':'PA','44':'RI',
+    '45':'SC','46':'SD','47':'TN','48':'TX','49':'UT','50':'VT','51':'VA','53':'WA',
+    '54':'WV','55':'WI','56':'WY'
+};
+
+function getStateClass(code) {
+    const d = attSpecialistData[code];
+    if (!d) return 'state';
+    if (!d.attSpecialist || d.attSpecialist === 'Open') return 'state att-open';
+    if (d.attSpecialist === 'Colby Smith')  return 'state att-colby';
+    if (d.attSpecialist === 'Hemali Patel') return 'state att-hemali';
+    return 'state att-open';
+}
+
+// ── Map init ──────────────────────────────────────────────────────────────────
+async function initMap() {
+    const svg = d3.select('#us-map');
+    const projection = d3.geoAlbersUsa().scale(1200).translate([480, 300]);
+    const path = d3.geoPath().projection(projection);
+
+    try {
+        const us = await d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json');
+        const states = topojson.feature(us, us.objects.states);
+
+        svg.selectAll('path')
+            .data(states.features)
+            .enter()
+            .append('path')
+            .attr('d', path)
+            .attr('class', d => {
+                const code = stateIdToAbbr[d.id.toString().padStart(2,'0')];
+                return getStateClass(code);
+            })
+            .attr('data-state', d => stateIdToAbbr[d.id.toString().padStart(2,'0')])
+            .on('click', function(event, d) {
+                const code = stateIdToAbbr[d.id.toString().padStart(2,'0')];
+                if (!code) return;
+                d3.selectAll('.state').classed('selected', false);
+                d3.selectAll(`[data-state="${code}"]`).classed('selected', true);
+                displayStateInfo(code);
+            });
+
+        // State abbreviation labels
+        svg.selectAll('text.state-label')
+            .data(states.features)
+            .enter()
+            .append('text')
+            .attr('class', 'state-label')
+            .attr('transform', d => {
+                const centroid = path.centroid(d);
+                return centroid && !isNaN(centroid[0]) ? 'translate(' + centroid + ')' : 'translate(-999,-999)';
+            })
+            .text(d => stateIdToAbbr[d.id.toString().padStart(2,'0')] || '')
+            .on('click', function(event, d) {
+                const code = stateIdToAbbr[d.id.toString().padStart(2,'0')];
+                if (!code) return;
+                d3.selectAll('.state').classed('selected', false);
+                d3.selectAll(`[data-state="${code}"]`).classed('selected', true);
+                displayStateInfo(code);
+            });
+    } catch (err) {
+        document.getElementById('state-info').innerHTML =
+            '<div class="no-data">Unable to load map data. Please check your internet connection.</div>';
+    }
+}
+
+// ── Info panel renderer ───────────────────────────────────────────────────────
+function displayStateInfo(code) {
+    const panel = document.getElementById('state-info');
+    const d = attSpecialistData[code];
+
+    if (!d) {
+        panel.innerHTML = '<div class="no-data"><strong>' + (code || 'Unknown') + '</strong><br>No data available for this state.</div>';
+        return;
+    }
+
+    function row(label, value, isEmail) {
+        if (!value) return '';
+        const val = isEmail
+            ? '<a href="mailto:' + value + '">' + value + '</a>'
+            : '<span>' + value + '</span>';
+        return '<div class="rep-detail"><strong>' + label + '</strong>' + val + '</div>';
+    }
+
+    let html = '<h2 class="state-name">' + d.name + '</h2>';
+
+    // AT&T Specialist
+    html += '<div class="rep-section"><h3>AT&amp;T Specialist</h3><div class="rep-info">';
+    html += row('Name', d.attSpecialist || 'Open');
+    html += row('Email', d.attEmail, true);
+    html += row('Phone', d.attPhone);
+    html += '</div></div>';
+
+    // Sales Representative
+    html += '<div class="rep-section"><h3 class="sales-section">Sales Representative</h3><div class="rep-info sales-info">';
+    html += row('Name', d.rep);
+    html += row('Email', d.repEmail, true);
+    html += '</div></div>';
+
+    // Technical Representative
+    html += '<div class="rep-section"><h3 class="sales-section">Technical Representative</h3><div class="rep-info sales-info">';
+    html += row('Name', d.techRep);
+    html += row('Email', d.techRepEmail, true);
+    html += '</div></div>';
+
+    // AT&T Partner Specialist
+    html += '<div class="rep-section"><h3>AT&amp;T Partner Specialist</h3><div class="rep-info">';
+    html += row('Name', 'Nick Butler');
+    html += row('Email', 'Nick.Butler@ibm.com', true);
+    html += '</div></div>';
+
+    // Senior Manager (territory-specific)
+    html += '<div class="rep-section"><h3 class="mgr-section">Senior Manager</h3><div class="rep-info mgr-info">';
+    html += row('Name', d.seniorManager);
+    html += row('Email', d.seniorManagerEmail, true);
+    html += row('Phone', d.seniorManagerPhone);
+    html += '</div></div>';
+
+    // Technical Manager (all states)
+    html += '<div class="rep-section"><h3 class="mgr-section">Technical Manager</h3><div class="rep-info mgr-info">';
+    html += row('Name', 'Colin Shenk');
+    html += row('Email', 'Colin.Shenk@ibm.com', true);
+    html += row('Phone', '+1-7173682766');
+    html += '</div></div>';
+
+    panel.innerHTML = html;
+}
+
+document.addEventListener('DOMContentLoaded', initMap);
+    </script>
+</body>
+</html>
